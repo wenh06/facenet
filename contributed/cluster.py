@@ -27,13 +27,18 @@ from __future__ import division
 from __future__ import print_function
 
 from scipy import misc
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import numpy as np
 import os
 import sys
 import argparse
-import facenet
-import align.detect_face
+from src import facenet
+from src.align import detect_face
 from sklearn.cluster import DBSCAN
 
 
@@ -121,12 +126,12 @@ def align_data(image_list, image_size, margin, pnet, rnet, onet):
 
     img_list = []
 
-    for x in xrange(len(image_list)):
+    for x in range(len(image_list)):
         img_size = np.asarray(image_list[x].shape)[0:2]
-        bounding_boxes, _ = align.detect_face.detect_face(image_list[x], minsize, pnet, rnet, onet, threshold, factor)
+        bounding_boxes, _ = detect_face.detect_face(image_list[x], minsize, pnet, rnet, onet, threshold, factor)
         nrof_samples = len(bounding_boxes)
         if nrof_samples > 0:
-            for i in xrange(nrof_samples):
+            for i in range(nrof_samples):
                 if bounding_boxes[i][4] > 0.95:
                     det = np.squeeze(bounding_boxes[i, 0:4])
                     bb = np.zeros(4, dtype=np.int32)
@@ -151,7 +156,7 @@ def create_network_face_detection(gpu_memory_fraction):
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction)
         sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
         with sess.as_default():
-            pnet, rnet, onet = align.detect_face.create_mtcnn(sess, None)
+            pnet, rnet, onet = detect_face.create_mtcnn(sess, None)
     return pnet, rnet, onet
 
 

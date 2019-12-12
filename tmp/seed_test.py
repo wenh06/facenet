@@ -1,12 +1,16 @@
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import numpy as np
 import sys
 import time
 sys.path.append('../src')
-import facenet
+from src import facenet
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import array_ops
-
 from six.moves import xrange
 
 tf.app.flags.DEFINE_integer('batch_size', 90,

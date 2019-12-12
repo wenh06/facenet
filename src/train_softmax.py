@@ -31,18 +31,27 @@ import os.path
 import time
 import sys
 import random
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import numpy as np
 import importlib
 import argparse
-import facenet
-import lfw
+from src import facenet
+from src.models import lfw
 import h5py
 import math
-import tensorflow.contrib.slim as slim
 from tensorflow.python.ops import data_flow_ops
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
+try:
+    import tensorflow.contrib.slim as slim
+except ModuleNotFoundError:
+    import tf_slim as slim
+
 
 def main(args):
   

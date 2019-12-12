@@ -29,18 +29,23 @@ from __future__ import print_function
 #----------------------------------------------------
 
 
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import numpy as np
 import argparse
-import facenet
+from src import facenet
 import os
 import sys
 import math
 import pickle
 from sklearn.svm import SVC
 from scipy import misc
-import align.detect_face
 from six.moves import xrange
+from src.align import detect_face
 
 def main(args):
   
@@ -85,7 +90,7 @@ def load_and_align_data(image_paths, image_size, margin, gpu_memory_fraction):
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction)
         sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
         with sess.as_default():
-            pnet, rnet, onet = align.detect_face.create_mtcnn(sess, None)
+            pnet, rnet, onet = detect_face.create_mtcnn(sess, None)
   
     nrof_samples = len(image_paths)
     img_list = [] 
@@ -93,7 +98,7 @@ def load_and_align_data(image_paths, image_size, margin, gpu_memory_fraction):
     for i in xrange(nrof_samples):
         img = misc.imread(os.path.expanduser(image_paths[i]))
         img_size = np.asarray(img.shape)[0:2]
-        bounding_boxes, _ = align.detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
+        bounding_boxes, _ = detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
         count_per_image.append(len(bounding_boxes))
         for j in range(len(bounding_boxes)):	
                 det = np.squeeze(bounding_boxes[j,0:4])

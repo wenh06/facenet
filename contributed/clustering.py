@@ -1,11 +1,18 @@
 """ Face Cluster """
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import numpy as np
 import importlib
 import argparse
-import facenet
+from src import facenet
 import os
 import math
+
+
 def face_distance(face_encodings, face_to_compare):
     """
     Given a list of face encodings, compare them to a known face encoding and get a euclidean distance

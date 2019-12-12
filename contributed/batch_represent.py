@@ -72,10 +72,15 @@ import importlib
 import time
 
 sys.path.insert(1, "../src")
-import facenet
+from src import facenet
 import numpy as np
 from sklearn.datasets import load_files
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 from six.moves import xrange
 
 def main(args):

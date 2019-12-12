@@ -1,4 +1,4 @@
-import facenet
+from src import facenet
 import os
 import matplotlib.pyplot as plt
 import numpy as np

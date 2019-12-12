@@ -27,11 +27,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import numpy as np
 import argparse
-import facenet
-import lfw
+from src import facenet
+from src.models import lfw
 import matplotlib.pyplot as plt
 from scipy import misc
 import os

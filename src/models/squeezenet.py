@@ -2,8 +2,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-import tensorflow.contrib.slim as slim
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
+try:
+    import tensorflow.contrib.slim as slim
+except ModuleNotFoundError:
+    import tf_slim as slim
+
 
 def fire_module(inputs,
                 squeeze_depth,

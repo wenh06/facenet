@@ -24,19 +24,24 @@ import unittest
 import tempfile
 import os
 import shutil
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import numpy as np
 
 class TrainTest(unittest.TestCase):
   
     @classmethod
-    def setUpClass(self):
-        self.tmp_dir = tempfile.mkdtemp()
+    def setUpClass(cls):
+        cls.tmp_dir = tempfile.mkdtemp()
         
     @classmethod
-    def tearDownClass(self):
+    def tearDownClass(cls):
         # Recursively remove the temporary directory
-        shutil.rmtree(self.tmp_dir)
+        shutil.rmtree(cls.tmp_dir)
 
     def test_restore_noema(self):
         

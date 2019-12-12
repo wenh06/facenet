@@ -1,4 +1,4 @@
-import facenet
+from src import facenet
 import argparse
 import sys
 import time

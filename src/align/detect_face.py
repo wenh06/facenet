@@ -29,7 +29,12 @@ from __future__ import print_function
 from six import string_types, iteritems
 
 import numpy as np
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf #pylint: disable=unresolved-import
+    tf.disable_v2_behavior()
 #from math import floor
 import cv2
 import os
@@ -779,3 +784,41 @@ def imresample(img, sz):
 #                 im_data[a1,a2,a3] = img[int(floor(a1*dy)),int(floor(a2*dx)),a3]
 #     return im_data
 
+
+class MTCNN(object):
+    def __init__(self):
+        with tf.Graph().as_default():
+            gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=1.0)
+            sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
+            with sess.as_default():
+                pnet, rnet, onet = create_mtcnn(sess, None)
+            self.pnet = pnet
+            self.rnet = rnet
+            self.onet = onet
+            self.minsize = 20  # minimum size of face
+            self.threshold = [0.6, 0.7, 0.7]  # three steps's threshold
+            self.factor = 0.709  # scale factor
+
+    def predict(self, img):
+        bounding_boxes, _ = detect_face(img, self.minsize, self.pnet, self.rnet, self.onet, self.threshold, self.factor)
+        return bounding_boxes
+
+
+if __name__ == '__main__':
+    import cv2
+    cap = cv2.VideoCapture(0)
+    mtcnn = MTCNN()
+    while True:
+        ret, im = cap.read()
+        if not ret: break
+        boxes = mtcnn.predict(im)
+        for box in boxes:
+            score = box[4]
+            box = box[:4] +0.5
+            box = box.astype(np.int32)
+        cv2.rectangle(im, (box[0], box[1]), (box[2], box[3]), (0,0,255))
+        cv2.imshow('0', im)
+        if cv2.waitKey(10) == 27:
+            break
+
+        # cv2.re

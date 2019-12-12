@@ -27,13 +27,19 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from tensorflow.python.framework import graph_util
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import argparse
 import os
 import sys
-import facenet
+from src import facenet
 from six.moves import xrange  # @UnresolvedImport
+from tensorflow.python.framework import graph_util
+
 
 def main(args):
     with tf.Graph().as_default():

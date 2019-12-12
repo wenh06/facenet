@@ -2,10 +2,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import numpy as np
 import scipy.io as io
-import align.detect_face
+from src.align import detect_face
 
 #ref = io.loadmat('pnet_dbg.mat')
 with tf.Graph().as_default():
@@ -14,7 +19,7 @@ with tf.Graph().as_default():
         with tf.variable_scope('pnet'):
 #            data = tf.placeholder(tf.float32, (None,None,None,3), 'input')
             data = tf.placeholder(tf.float32, (1,1610, 1901,3), 'input')
-            pnet = align.detect_face.PNet({'data':data})
+            pnet = detect_face.PNet({'data':data})
             pnet.load('../../data/det1.npy', sess)
 #         with tf.variable_scope('rnet'):
 #             data = tf.placeholder(tf.float32, (None,24,24,3), 'input')

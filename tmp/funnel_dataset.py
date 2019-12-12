@@ -8,7 +8,7 @@ from scipy import misc
 import sys
 import os
 import argparse
-import facenet
+from src import facenet
 import subprocess
 from contextlib import contextmanager
 import tempfile

@@ -27,14 +27,19 @@ from __future__ import division
 from __future__ import print_function
 
 from scipy import misc
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import numpy as np
 import sys
 import os
 import copy
 import argparse
-import facenet
-import align.detect_face
+from src import facenet
+from src.align import detect_face
 
 def main(args):
 
@@ -87,14 +92,14 @@ def load_and_align_data(image_paths, image_size, margin, gpu_memory_fraction):
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction)
         sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
         with sess.as_default():
-            pnet, rnet, onet = align.detect_face.create_mtcnn(sess, None)
+            pnet, rnet, onet = detect_face.create_mtcnn(sess, None)
   
     tmp_image_paths=copy.copy(image_paths)
     img_list = []
     for image in tmp_image_paths:
         img = misc.imread(os.path.expanduser(image), mode='RGB')
         img_size = np.asarray(img.shape)[0:2]
-        bounding_boxes, _ = align.detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
+        bounding_boxes, _ = detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
         if len(bounding_boxes) < 1:
           image_paths.remove(image)
           print("can't detect face, remove ", image)

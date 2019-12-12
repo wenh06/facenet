@@ -28,12 +28,18 @@ import sys
 import time
 
 from six.moves import urllib  # @UnresolvedImport
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import numpy as np
 import matplotlib.pyplot as plt
-from tensorflow.python.ops import control_flow_ops
-import facenet
+from src import facenet
 from six.moves import xrange
+from tensorflow.python.ops import control_flow_ops
+
 
 SOURCE_URL = 'http://yann.lecun.com/exdb/mnist/'
 WORK_DIRECTORY = 'data'

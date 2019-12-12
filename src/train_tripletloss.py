@@ -31,20 +31,25 @@ from datetime import datetime
 import os.path
 import time
 import sys
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import numpy as np
 import importlib
 import itertools
 import argparse
-import facenet
-import lfw
-
+from src import facenet
+from src.models import lfw
+from six.moves import xrange  # @UnresolvedImport
 from tensorflow.python.ops import data_flow_ops
 
-from six.moves import xrange  # @UnresolvedImport
 
 def main(args):
-  
+    """
+    """
     network = importlib.import_module(args.model_def)
 
     subdir = datetime.strftime(datetime.now(), '%Y%m%d-%H%M%S')

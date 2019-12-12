@@ -26,10 +26,19 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-import tensorflow.contrib.slim as slim
 import numpy as np
-  
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
+try:
+    import tensorflow.contrib.slim as slim
+except ModuleNotFoundError:
+    import tf_slim as slim
+
+
 def inference(images, keep_probability, phase_train=True,  # @UnusedVariable
               bottleneck_layer_size=128, bottleneck_layer_activation=None, weight_decay=0.0, reuse=None):  # @UnusedVariable
     batch_norm_params = {

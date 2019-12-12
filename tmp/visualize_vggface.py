@@ -1,5 +1,10 @@
 import numpy as np
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import matplotlib.pyplot as plt
 import tmp.vggface16
 

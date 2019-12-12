@@ -34,11 +34,16 @@ import os
 
 import cv2
 import numpy as np
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 from scipy import misc
 
-import align.detect_face
-import facenet
+from src.align import detect_face
+from src import facenet
 
 
 gpu_memory_fraction = 0.3
@@ -130,12 +135,12 @@ class Detection:
             gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction)
             sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
             with sess.as_default():
-                return align.detect_face.create_mtcnn(sess, None)
+                return detect_face.create_mtcnn(sess, None)
 
     def find_faces(self, image):
         faces = []
 
-        bounding_boxes, _ = align.detect_face.detect_face(image, self.minsize,
+        bounding_boxes, _ = detect_face.detect_face(image, self.minsize,
                                                           self.pnet, self.rnet, self.onet,
                                                           self.threshold, self.factor)
         for bb in bounding_boxes:

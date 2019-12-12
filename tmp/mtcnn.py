@@ -24,8 +24,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-import align.detect_face
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
+from src.align import detect_face
 from scipy import misc
 
 with tf.Graph().as_default():
@@ -34,15 +39,15 @@ with tf.Graph().as_default():
     with sess.as_default():
         with tf.variable_scope('pnet'):
             data = tf.placeholder(tf.float32, (None,None,None,3), 'input')
-            pnet = align.detect_face.PNet({'data':data})
+            pnet = detect_face.PNet({'data':data})
             pnet.load('../../data/det1.npy', sess)
         with tf.variable_scope('rnet'):
             data = tf.placeholder(tf.float32, (None,24,24,3), 'input')
-            rnet = align.detect_face.RNet({'data':data})
+            rnet = detect_face.RNet({'data':data})
             rnet.load('../../data/det2.npy', sess)
         with tf.variable_scope('onet'):
             data = tf.placeholder(tf.float32, (None,48,48,3), 'input')
-            onet = align.detect_face.ONet({'data':data})
+            onet = detect_face.ONet({'data':data})
             onet.load('../../data/det3.npy', sess)
             
         pnet_fun = lambda img : sess.run(('pnet/conv4-2/BiasAdd:0', 'pnet/prob1:0'), feed_dict={'pnet/input:0':img})
@@ -56,7 +61,7 @@ factor = 0.709 # scale factor
 source_path = '/home/david/datasets/casia/CASIA-maxpy-clean/0000045/002.jpg'
 img = misc.imread(source_path)
 
-bounding_boxes, points = align.detect_face.detect_face(img, minsize, pnet_fun, rnet_fun, onet_fun, threshold, factor)
+bounding_boxes, points = detect_face.detect_face(img, minsize, pnet_fun, rnet_fun, onet_fun, threshold, factor)
 
 print('Bounding box: %s' % bounding_boxes)
 

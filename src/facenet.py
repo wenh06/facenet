@@ -29,17 +29,49 @@ from __future__ import print_function
 
 import os
 from subprocess import Popen, PIPE
-import tensorflow as tf
+import tensorflow
+if tensorflow.__version__.startswith("1."):
+    import tensorflow as tf
+else:
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 import numpy as np
 from scipy import misc
 from sklearn.model_selection import KFold
 from scipy import interpolate
-from tensorflow.python.training import training
 import random
 import re
-from tensorflow.python.platform import gfile
 import math
 from six import iteritems
+from tensorflow.python.training import training
+from tensorflow.python.platform import gfile
+
+
+__all__ = [
+    "triplet_loss",
+    "center_loss",
+    "create_input_pipeline",
+    "train",
+    "prewhiten",
+    "crop",
+    "flip",
+    "to_rgb",
+    "load_data",
+    "get_batch",
+    "get_label_batch",
+    "get_triplet_batch",
+    "ImageClass",
+    "get_dataset",
+    "split_dataset",
+    "load_model",
+    "distance",
+    "calculate_roc",
+    "calculate_accuracy",
+    "calculate_val",
+    "calculate_val_far",
+    "store_revision_info",
+]
+
 
 def triplet_loss(anchor, positive, negative, alpha):
     """Calculate the triplet loss according to the FaceNet paper
@@ -60,7 +92,8 @@ def triplet_loss(anchor, positive, negative, alpha):
         loss = tf.reduce_mean(tf.maximum(basic_loss, 0.0), 0)
       
     return loss
-  
+
+
 def center_loss(features, label, alfa, nrof_classes):
     """Center loss based on the paper "A Discriminative Feature Learning Approach for Deep Face Recognition"
        (http://ydwen.github.io/papers/WenECCV16.pdf)
@@ -76,6 +109,7 @@ def center_loss(features, label, alfa, nrof_classes):
         loss = tf.reduce_mean(tf.square(features - centers_batch))
     return loss, centers
 
+
 def get_image_paths_and_labels(dataset):
     image_paths_flat = []
     labels_flat = []
@@ -84,22 +118,26 @@ def get_image_paths_and_labels(dataset):
         labels_flat += [i] * len(dataset[i].image_paths)
     return image_paths_flat, labels_flat
 
+
 def shuffle_examples(image_paths, labels):
     shuffle_list = list(zip(image_paths, labels))
     random.shuffle(shuffle_list)
     image_paths_shuff, labels_shuff = zip(*shuffle_list)
     return image_paths_shuff, labels_shuff
 
+
 def random_rotate_image(image):
     angle = np.random.uniform(low=-10.0, high=10.0)
     return misc.imrotate(image, angle, 'bicubic')
-  
+
+
 # 1: Random rotate 2: Random crop  4: Random flip  8:  Fixed image standardization  16: Flip
 RANDOM_ROTATE = 1
 RANDOM_CROP = 2
 RANDOM_FLIP = 4
 FIXED_STANDARDIZATION = 8
 FLIP = 16
+
 def create_input_pipeline(input_queue, image_size, nrof_preprocess_threads, batch_size_placeholder):
     images_and_labels_list = []
     for _ in range(nrof_preprocess_threads):
@@ -136,9 +174,11 @@ def create_input_pipeline(input_queue, image_size, nrof_preprocess_threads, batc
     
     return image_batch, label_batch
 
+
 def get_control_flag(control, field):
     return tf.equal(tf.mod(tf.floor_div(control, field), 2), 1)
-  
+
+
 def _add_loss_summaries(total_loss):
     """Add summaries for losses.
   
@@ -164,6 +204,7 @@ def _add_loss_summaries(total_loss):
         tf.summary.scalar(l.op.name, loss_averages.average(l))
   
     return loss_averages_op
+
 
 def train(total_loss, global_step, optimizer, learning_rate, moving_average_decay, update_gradient_vars, log_histograms=True):
     # Generate moving averages of all losses and associated summaries.
@@ -210,12 +251,14 @@ def train(total_loss, global_step, optimizer, learning_rate, moving_average_deca
   
     return train_op
 
+
 def prewhiten(x):
     mean = np.mean(x)
     std = np.std(x)
     std_adj = np.maximum(std, 1.0/np.sqrt(x.size))
     y = np.multiply(np.subtract(x, mean), 1/std_adj)
     return y  
+
 
 def crop(image, random_crop, image_size):
     if image.shape[1]>image_size:
@@ -228,18 +271,21 @@ def crop(image, random_crop, image_size):
             (h, v) = (0,0)
         image = image[(sz1-sz2+v):(sz1+sz2+v),(sz1-sz2+h):(sz1+sz2+h),:]
     return image
-  
+
+
 def flip(image, random_flip):
     if random_flip and np.random.choice([True, False]):
         image = np.fliplr(image)
     return image
+
 
 def to_rgb(img):
     w, h = img.shape
     ret = np.empty((w, h, 3), dtype=np.uint8)
     ret[:, :, 0] = ret[:, :, 1] = ret[:, :, 2] = img
     return ret
-  
+
+
 def load_data(image_paths, do_random_crop, do_random_flip, image_size, do_prewhiten=True):
     nrof_samples = len(image_paths)
     images = np.zeros((nrof_samples, image_size, image_size, 3))
@@ -254,6 +300,7 @@ def load_data(image_paths, do_random_crop, do_random_flip, image_size, do_prewhi
         images[i,:,:,:] = img
     return images
 
+
 def get_label_batch(label_data, batch_size, batch_index):
     nrof_examples = np.size(label_data, 0)
     j = batch_index*batch_size % nrof_examples
@@ -265,6 +312,7 @@ def get_label_batch(label_data, batch_size, batch_index):
         batch = np.vstack([x1,x2])
     batch_int = batch.astype(np.int64)
     return batch_int
+
 
 def get_batch(image_data, batch_size, batch_index):
     nrof_examples = np.size(image_data, 0)
@@ -278,6 +326,7 @@ def get_batch(image_data, batch_size, batch_index):
     batch_float = batch.astype(np.float32)
     return batch_float
 
+
 def get_triplet_batch(triplets, batch_index, batch_size):
     ax, px, nx = triplets
     a = get_batch(ax, int(batch_size/3), batch_index)
@@ -285,6 +334,7 @@ def get_triplet_batch(triplets, batch_index, batch_size):
     n = get_batch(nx, int(batch_size/3), batch_index)
     batch = np.vstack([a, p, n])
     return batch
+
 
 def get_learning_rate_from_file(filename, epoch):
     with open(filename, 'r') as f:
@@ -302,6 +352,7 @@ def get_learning_rate_from_file(filename, epoch):
                 else:
                     return learning_rate
 
+
 class ImageClass():
     "Stores the paths to images for a given class"
     def __init__(self, name, image_paths):
@@ -313,7 +364,8 @@ class ImageClass():
   
     def __len__(self):
         return len(self.image_paths)
-  
+
+
 def get_dataset(path, has_class_directories=True):
     dataset = []
     path_exp = os.path.expanduser(path)
@@ -329,13 +381,15 @@ def get_dataset(path, has_class_directories=True):
   
     return dataset
 
+
 def get_image_paths(facedir):
     image_paths = []
     if os.path.isdir(facedir):
         images = os.listdir(facedir)
         image_paths = [os.path.join(facedir,img) for img in images]
     return image_paths
-  
+
+
 def split_dataset(dataset, split_ratio, min_nrof_images_per_class, mode):
     if mode=='SPLIT_CLASSES':
         nrof_classes = len(dataset)
@@ -361,6 +415,7 @@ def split_dataset(dataset, split_ratio, min_nrof_images_per_class, mode):
         raise ValueError('Invalid train/test split mode "%s"' % mode)
     return train_set, test_set
 
+
 def load_model(model, input_map=None):
     # Check if the model is a model directory (containing a metagraph and a checkpoint file)
     #  or if it is a protobuf file with a frozen graph
@@ -380,7 +435,8 @@ def load_model(model, input_map=None):
       
         saver = tf.train.import_meta_graph(os.path.join(model_exp, meta_file), input_map=input_map)
         saver.restore(tf.get_default_session(), os.path.join(model_exp, ckpt_file))
-    
+
+
 def get_model_filenames(model_dir):
     files = os.listdir(model_dir)
     meta_files = [s for s in files if s.endswith('.meta')]
@@ -404,7 +460,8 @@ def get_model_filenames(model_dir):
                 max_step = step
                 ckpt_file = step_str.groups()[0]
     return meta_file, ckpt_file
-  
+
+
 def distance(embeddings1, embeddings2, distance_metric=0):
     if distance_metric==0:
         # Euclidian distance
@@ -420,6 +477,7 @@ def distance(embeddings1, embeddings2, distance_metric=0):
         raise 'Undefined distance metric %d' % distance_metric 
         
     return dist
+
 
 def calculate_roc(thresholds, embeddings1, embeddings2, actual_issame, nrof_folds=10, distance_metric=0, subtract_mean=False):
     assert(embeddings1.shape[0] == embeddings2.shape[0])
@@ -454,6 +512,7 @@ def calculate_roc(thresholds, embeddings1, embeddings2, actual_issame, nrof_fold
         fpr = np.mean(fprs,0)
     return tpr, fpr, accuracy
 
+
 def calculate_accuracy(threshold, dist, actual_issame):
     predict_issame = np.less(dist, threshold)
     tp = np.sum(np.logical_and(predict_issame, actual_issame))
@@ -465,7 +524,6 @@ def calculate_accuracy(threshold, dist, actual_issame):
     fpr = 0 if (fp+tn==0) else float(fp) / float(fp+tn)
     acc = float(tp+tn)/dist.size
     return tpr, fpr, acc
-
 
   
 def calculate_val(thresholds, embeddings1, embeddings2, actual_issame, far_target, nrof_folds=10, distance_metric=0, subtract_mean=False):
@@ -515,6 +573,7 @@ def calculate_val_far(threshold, dist, actual_issame):
     far = float(false_accept) / float(n_diff)
     return val, far
 
+
 def store_revision_info(src_path, output_dir, arg_string):
     try:
         # Get git hash
@@ -542,11 +601,13 @@ def store_revision_info(src_path, output_dir, arg_string):
         text_file.write('git hash: %s\n--------------------\n' % git_hash)
         text_file.write('%s' % git_diff)
 
+
 def list_variables(filename):
     reader = training.NewCheckpointReader(filename)
     variable_map = reader.get_variable_to_shape_map()
     names = sorted(variable_map.keys())
     return names
+
 
 def put_images_on_grid(images, shape=(16,8)):
     nrof_images = images.shape[0]
@@ -564,6 +625,7 @@ def put_images_on_grid(images, shape=(16,8)):
         if img_index>=nrof_images:
             break
     return img
+
 
 def write_arguments_to_file(args, filename):
     with open(filename, 'w') as f:

@@ -32,7 +32,7 @@ import os
 import argparse
 import random
 import align_dlib  # @UnresolvedImport
-import facenet
+from src import facenet
 
 def main(args):
     align = align_dlib.AlignDlib(os.path.expanduser(args.dlib_face_predictor))
