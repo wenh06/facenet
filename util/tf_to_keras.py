@@ -1,5 +1,10 @@
+# -*- coding: utf-8 -*-
 """
 modified from https://github.com/nyoki-mtl/keras-facenet/
+
+NOTE:
+the models provided in https://github.com/davidsandberg/facenet
+were trained using softmax loss with the Inception-Resnet-v1 model
 """
 import os
 import re
@@ -16,12 +21,15 @@ else:
     tf.disable_v2_behavior()
 
 from src.models.keras_inception_resnet_v1 import InceptionResNetV1
+from src.facenet import get_model_filenames
 
 
-def tf_to_keras(tf_dir:str, tf_model_name:str, ckpt_name:str, embedding_dim:int, keras_dir:str) -> NoReturn:
+def tf_to_keras(tf_dir:str, embedding_dim:int, keras_dir:str) -> NoReturn:
     """
     """
-    tf_model_dir = os.path.join(tf_dir, tf_model_name)
+    tf_model_name = os.path.basename(tf_dir)
+    tf_meta_filename, tf_ckpt_filename = get_model_filenames(tf_dir)
+
     npy_weights_dir = os.path.join(keras_dir, 'tmp-{}/npy_weights/'.format(tf_model_name))
     weights_dir = os.path.join(keras_dir, 'tmp-{}/weights/'.format(tf_model_name))
     model_dir = os.path.join(keras_dir, 'tmp-{}/model/'.format(tf_model_name))
@@ -33,7 +41,7 @@ def tf_to_keras(tf_dir:str, tf_model_name:str, ckpt_name:str, embedding_dim:int,
     os.makedirs(weights_dir, exist_ok=True)
     os.makedirs(model_dir, exist_ok=True)
 
-    _extract_tensors_from_checkpoint_file(os.path.join(tf_model_dir, ckpt_name), npy_weights_dir)
+    _extract_tensors_from_checkpoint_file(os.path.join(tf_dir, tf_ckpt_filename), npy_weights_dir)
 
     model = InceptionResNetV1(classes=embedding_dim)
 

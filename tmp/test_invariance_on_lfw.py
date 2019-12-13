@@ -40,7 +40,8 @@ import argparse
 from src import facenet
 from src.models import lfw
 import matplotlib.pyplot as plt
-from scipy import misc
+# from scipy import misc
+import imageio
 import os
 import sys
 import math

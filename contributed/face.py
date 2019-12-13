@@ -42,7 +42,8 @@ else:
     del tensorflow
     import tensorflow.compat.v1 as tf
     tf.disable_v2_behavior()
-from scipy import misc
+# from scipy import misc
+import imageio
 
 from src.align import detect_face
 from src import facenet

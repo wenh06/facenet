@@ -34,7 +34,8 @@ import math
 from typing import Union
 from subprocess import Popen, PIPE
 import numpy as np
-from scipy import misc
+# from scipy import misc
+import imageio
 from scipy.spatial.distance import cdist, pdist, squareform
 from scipy import interpolate
 from sklearn.model_selection import KFold
@@ -294,7 +295,7 @@ def load_data(image_paths, do_random_crop, do_random_flip, image_size, do_prewhi
     nrof_samples = len(image_paths)
     images = np.zeros((nrof_samples, image_size, image_size, 3))
     for i in range(nrof_samples):
-        img = misc.imread(image_paths[i])
+        img = imageio.imread(image_paths[i])
         if img.ndim == 2:
             img = to_rgb(img)
         if do_prewhiten:

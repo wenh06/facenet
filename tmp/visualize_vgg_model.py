@@ -1,5 +1,6 @@
 import numpy as np
-from scipy import misc
+# from scipy import misc
+import imageio
 import tensorflow
 if tensorflow.__version__.startswith("1."):
     del tensorflow
@@ -105,10 +106,10 @@ for iters in range(iterations):
         im = mixedImage + meanImage19
         im = im[0]
         im = np.clip(im, 0, 255).astype('uint8')
-        misc.imsave(filename, im)
+        imageio.imwrite(filename, im)
  
 im = mixedImage + meanImage19
 im = im[0]
 im = np.clip(im, 0, 255).astype('uint8')
-misc.imsave('finalImage.png', im)
+imageio.imwrite('finalImage.png', im)
 

@@ -45,7 +45,8 @@ import sys
 import math
 import pickle
 from sklearn.svm import SVC
-from scipy import misc
+# from scipy import misc
+import imageio
 from six.moves import xrange
 from src.align import detect_face
 
@@ -100,7 +101,7 @@ def load_and_align_data(image_paths, image_size, margin, gpu_memory_fraction):
     img_list = [] 
     count_per_image = []
     for i in xrange(nrof_samples):
-        img = misc.imread(os.path.expanduser(image_paths[i]))
+        img = imageio.imread(os.path.expanduser(image_paths[i]))
         img_size = np.asarray(img.shape)[0:2]
         bounding_boxes, _ = detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
         count_per_image.append(len(bounding_boxes))

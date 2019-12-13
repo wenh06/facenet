@@ -4,7 +4,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from scipy import misc
+# from scipy import misc
+import imageio
 import sys
 import os
 import argparse
@@ -67,7 +68,7 @@ def main(args):
                     os.makedirs(output_class_dir)
                 scale = 1.0
                 for tmp_filename in tmp_filenames:
-                    img = misc.imread(tmp_filename)
+                    img = imageio.imread(tmp_filename)
                     img_scale = misc.imresize(img, scale)
                     sz1 = img.shape[1]/2
                     sz2 = args.image_size/2
@@ -75,7 +76,7 @@ def main(args):
                     filename = os.path.splitext(os.path.split(tmp_filename)[1])[0]
                     output_filename = os.path.join(output_class_dir, filename+'.png')
                     print('Saving image %s' % output_filename)
-                    misc.imsave(output_filename, img_crop)
+                    imageio.imwrite(output_filename, img_crop)
                     
                 # Remove tmp directory with images
                 shutil.rmtree(tmp_output_class_dir)

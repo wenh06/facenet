@@ -44,7 +44,8 @@ import os
 import numpy as np
 import h5py
 import math
-from scipy import misc
+# from scipy import misc
+import imageio
 
 def main(args):
   
@@ -123,7 +124,7 @@ def main(args):
             
             image_filename = os.path.expanduser(args.output_image_filename)
             print('Writing generated image to %s' % image_filename)
-            misc.imsave(image_filename, img)
+            imageio.imwrite(image_filename, img)
 
                     
 def parse_arguments(argv):

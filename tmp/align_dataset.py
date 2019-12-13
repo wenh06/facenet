@@ -26,7 +26,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from scipy import misc
+# from scipy import misc
+import imageio
 import sys
 import os
 import argparse
@@ -61,7 +62,7 @@ def main(args):
             output_filename = os.path.join(output_class_dir, filename+'.png')
             if not os.path.exists(output_filename):
                 try:
-                    img = misc.imread(image_path)
+                    img = imageio.imread(image_path)
                 except (IOError, ValueError, IndexError) as e:
                     errorMessage = '{}: {}'.format(image_path, e)
                     print(errorMessage)
@@ -79,7 +80,7 @@ def main(args):
                     if aligned is not None:
                         print(image_path)
                         nrof_successfully_aligned += 1
-                        misc.imsave(output_filename, aligned)
+                        imageio.imwrite(output_filename, aligned)
                     elif args.prealigned_dir:
                         # Face detection failed. Use center crop from pre-aligned dataset
                         class_name = os.path.split(output_class_dir)[1]
@@ -94,7 +95,7 @@ def main(args):
                                 image_path = temp_path
                                 break
                         try:
-                            img = misc.imread(image_path)
+                            img = imageio.imread(image_path)
                         except (IOError, ValueError, IndexError) as e:
                             errorMessage = '{}: {}'.format(image_path, e)
                             print(errorMessage)
@@ -105,7 +106,7 @@ def main(args):
                             cropped = scaled[(sz1-sz2):(sz1+sz2),(sz1-sz2):(sz1+sz2),:]
                             print(image_path)
                             nrof_prealigned_images += 1
-                            misc.imsave(output_filename, cropped)
+                            imageio.imwrite(output_filename, cropped)
                     else:
                         print('Unable to align "%s"' % image_path)
                             

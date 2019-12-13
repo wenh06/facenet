@@ -38,10 +38,13 @@ else:
     import tensorflow.compat.v1 as tf
     tf.disable_v2_behavior()
 import importlib
-from scipy import misc
+# from scipy import misc
+import imageio
+
 
 def main(args):
-  
+    """
+    """
     network = importlib.import_module(args.model_def, 'inference')
 
     # Start with a gray image with a little noise
@@ -85,7 +88,7 @@ def main(args):
         channel = channels[i]
         img = render_naive(sess, t_input, T(layer)[:,:,:,channel], img_noise)
         filename = '%s_%03d.png' % (layer.replace('/', '_'), channel)
-        misc.imsave(os.path.join(result_dir, filename), img)
+        imageio.imwrite(os.path.join(result_dir, filename), img)
   
 
 def T(layer):

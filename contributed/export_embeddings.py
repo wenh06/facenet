@@ -51,7 +51,8 @@ from __future__ import division
 from __future__ import print_function
 
 import time
-from scipy import misc
+# from scipy import misc
+import imageio
 import tensorflow
 if tensorflow.__version__.startswith("1."):
     del tensorflow
@@ -69,6 +70,7 @@ from src.align import detect_face
 import glob
 
 from six.moves import xrange
+
 
 def main(args):
     train_set = facenet.get_dataset(args.data_dir)
@@ -152,7 +154,7 @@ def load_and_align_data(image_paths, image_size, margin, gpu_memory_fraction):
     img_list = [None] * nrof_samples
     for i in xrange(nrof_samples):
         print(image_paths[i])
-        img = misc.imread(os.path.expanduser(image_paths[i]))
+        img = imageio.imread(os.path.expanduser(image_paths[i]))
         img_size = np.asarray(img.shape)[0:2]
         bounding_boxes, _ = detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
         det = np.squeeze(bounding_boxes[0,0:4])
@@ -162,7 +164,7 @@ def load_and_align_data(image_paths, image_size, margin, gpu_memory_fraction):
         bb[2] = np.minimum(det[2]+margin/2, img_size[1])
         bb[3] = np.minimum(det[3]+margin/2, img_size[0])
         cropped = img[bb[1]:bb[3],bb[0]:bb[2],:]
-        aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
+        aligned = imageio.imresize(cropped, (image_size, image_size), interp='bilinear')
         prewhitened = facenet.prewhiten(aligned)
         img_list[i] = prewhitened
     images = np.stack(img_list)

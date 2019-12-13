@@ -26,7 +26,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from scipy import misc
+# from scipy import misc
+try:
+    import cv2
+except ModuleNotFoundError:
+    import imageio
 import tensorflow
 if tensorflow.__version__.startswith("1."):
     del tensorflow
@@ -102,7 +106,7 @@ def main(args):
                     print('Saving largest cluster (Cluster: {})'.format(largest_cluster))
                     cnt = 1
                     for i in np.nonzero(labels == largest_cluster)[0]:
-                        misc.imsave(os.path.join(args.out_dir, str(cnt) + '.png'), images[i])
+                        imageio.imwrite(os.path.join(args.out_dir, str(cnt) + '.png'), images[i])
                         cnt += 1
                 else:
                     print('Saving all clusters')
@@ -113,11 +117,11 @@ def main(args):
                         if not os.path.exists(path):
                             os.makedirs(path)
                             for j in np.nonzero(labels == i)[0]:
-                                misc.imsave(os.path.join(path, str(cnt) + '.png'), images[j])
+                                imageio.imwrite(os.path.join(path, str(cnt) + '.png'), images[j])
                                 cnt += 1
                         else:
                             for j in np.nonzero(labels == i)[0]:
-                                misc.imsave(os.path.join(path, str(cnt) + '.png'), images[j])
+                                imageio.imwrite(os.path.join(path, str(cnt) + '.png'), images[j])
                                 cnt += 1
 
 
@@ -165,7 +169,7 @@ def create_network_face_detection(gpu_memory_fraction):
 def load_images_from_folder(folder):
     images = []
     for filename in os.listdir(folder):
-        img = misc.imread(os.path.join(folder, filename))
+        img = imageio.imread(os.path.join(folder, filename))
         if img is not None:
             images.append(img)
     return images

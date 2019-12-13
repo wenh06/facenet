@@ -27,7 +27,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from scipy import misc
+# from scipy import misc
+import imageio
 import numpy as np
 import base64
 import sys

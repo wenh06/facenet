@@ -26,7 +26,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from scipy import misc
+# from scipy import misc
+import imageio
 import numpy as np
 from skimage import io
 import sys
@@ -75,7 +76,7 @@ def main(args):
                                 # Scale to 256x256
                                 img_resized = misc.imresize(img_cropped, (args.image_size,args.image_size))
                                 # Save image as .png
-                                misc.imsave(image_path, img_resized)
+                                imageio.imwrite(image_path, img_resized)
                         except ValueError as e:
                             error_message = '{}: {}'.format(url, e)
                             save_error_message_file(error_path, error_message)

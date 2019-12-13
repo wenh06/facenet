@@ -25,7 +25,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from scipy import misc
+# from scipy import misc
+import imageio
 import sys
 import os
 import argparse
@@ -87,7 +88,7 @@ def main(args):
                 print(image_path)
                 if not os.path.exists(output_filename):
                     try:
-                        img = misc.imread(image_path)
+                        img = imageio.imread(image_path)
                     except (IOError, ValueError, IndexError) as e:
                         errorMessage = '{}: {}'.format(image_path, e)
                         print(errorMessage)
@@ -135,7 +136,7 @@ def main(args):
                                     output_filename_n = "{}_{}{}".format(filename_base, i, file_extension)
                                 else:
                                     output_filename_n = "{}{}".format(filename_base, file_extension)
-                                misc.imsave(output_filename_n, scaled)
+                                imageio.imwrite(output_filename_n, scaled)
                                 text_file.write('%s %d %d %d %d\n' % (output_filename_n, bb[0], bb[1], bb[2], bb[3]))
                         else:
                             print('Unable to align "%s"' % image_path)
