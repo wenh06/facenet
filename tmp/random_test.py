@@ -1,7 +1,11 @@
+"""
+"""
 import tensorflow
 if tensorflow.__version__.startswith("1."):
+    del tensorflow
     import tensorflow as tf
 else:
+    del tensorflow
     import tensorflow.compat.v1 as tf
     tf.disable_v2_behavior()
 import numpy as np
@@ -9,40 +13,40 @@ from six.moves import xrange
 
 
 with tf.Graph().as_default():
-  tf.set_random_seed(666)
+    tf.set_random_seed(666)
 
 
-  # Placeholder for input images
-  input_placeholder = tf.placeholder(tf.float32, shape=(9, 7), name='input')
-  
-  # Split example embeddings into anchor, positive and negative
-  #anchor, positive, negative = tf.split(0, 3, input)
-  resh1 = tf.reshape(input_placeholder, [3,3,7])
-  anchor = resh1[0,:,:]
-  positive = resh1[1,:,:]
-  negative = resh1[2,:,:]
-  
-  # Build an initialization operation to run below.
-  init = tf.global_variables_initializer()
+    # Placeholder for input images
+    input_placeholder = tf.placeholder(tf.float32, shape=(9, 7), name='input')
+    
+    # Split example embeddings into anchor, positive and negative
+    #anchor, positive, negative = tf.split(0, 3, input)
+    resh1 = tf.reshape(input_placeholder, [3,3,7])
+    anchor = resh1[0,:,:]
+    positive = resh1[1,:,:]
+    negative = resh1[2,:,:]
+    
+    # Build an initialization operation to run below.
+    init = tf.global_variables_initializer()
 
-  # Start running operations on the Graph.
-  sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
-  sess.run(init)
-  
-  with sess.as_default():
-    batch = np.zeros((9,7))
-    batch[0,:] = 1.1
-    batch[1,:] = 2.1
-    batch[2,:] = 3.1
-    batch[3,:] = 1.2
-    batch[4,:] = 2.2
-    batch[5,:] = 3.2
-    batch[6,:] = 1.3
-    batch[7,:] = 2.3
-    batch[8,:] = 3.3
-    feed_dict = {input_placeholder: batch }
-    print(batch)
-    print(sess.run([anchor, positive, negative], feed_dict=feed_dict))
+    # Start running operations on the Graph.
+    sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
+    sess.run(init)
+    
+    with sess.as_default():
+        batch = np.zeros((9,7))
+        batch[0,:] = 1.1
+        batch[1,:] = 2.1
+        batch[2,:] = 3.1
+        batch[3,:] = 1.2
+        batch[4,:] = 2.2
+        batch[5,:] = 3.2
+        batch[6,:] = 1.3
+        batch[7,:] = 2.3
+        batch[8,:] = 3.3
+        feed_dict = {input_placeholder: batch }
+        print(batch)
+        print(sess.run([anchor, positive, negative], feed_dict=feed_dict))
 
 
 

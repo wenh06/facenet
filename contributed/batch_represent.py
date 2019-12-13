@@ -77,8 +77,10 @@ import numpy as np
 from sklearn.datasets import load_files
 import tensorflow
 if tensorflow.__version__.startswith("1."):
+	del tensorflow
     import tensorflow as tf
 else:
+	del tensorflow
     import tensorflow.compat.v1 as tf
     tf.disable_v2_behavior()
 from six.moves import xrange

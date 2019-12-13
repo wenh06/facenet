@@ -31,9 +31,11 @@ from six import string_types, iteritems
 import numpy as np
 import tensorflow
 if tensorflow.__version__.startswith("1."):
+    del tensorflow
     import tensorflow as tf
 else:
-    import tensorflow.compat.v1 as tf #pylint: disable=unresolved-import
+    del tensorflow
+    import tensorflow.compat.v1 as tf
     tf.disable_v2_behavior()
 #from math import floor
 import cv2

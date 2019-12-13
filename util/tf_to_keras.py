@@ -3,16 +3,18 @@ modified from https://github.com/nyoki-mtl/keras-facenet/
 """
 import os
 import re
+from typing import NoReturn
+import sys
 import numpy as np
 import tensorflow
 if tensorflow.__version__.startswith("1."):
+    del tensorflow
     import tensorflow as tf
 else:
+    del tensorflow
     import tensorflow.compat.v1 as tf 
     tf.disable_v2_behavior()
-from typing import NoReturn
 
-import sys
 from src.models.keras_inception_resnet_v1 import InceptionResNetV1
 
 

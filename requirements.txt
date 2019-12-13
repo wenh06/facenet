@@ -1,4 +1,5 @@
-tensorflow==1.7
+tensorflow
+tf_slim
 scipy
 scikit-learn
 opencv-python

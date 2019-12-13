@@ -28,8 +28,10 @@ from __future__ import print_function
 
 import tensorflow
 if tensorflow.__version__.startswith("1."):
+    del tensorflow
     import tensorflow as tf
 else:
+    del tensorflow
     import tensorflow.compat.v1 as tf 
     tf.disable_v2_behavior()
 import numpy as np
@@ -41,8 +43,10 @@ import math
 import pickle
 from sklearn.svm import SVC
 
+
 def main(args):
-  
+    """
+    """
     with tf.Graph().as_default():
       
         with tf.Session() as sess:

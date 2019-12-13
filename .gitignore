@@ -91,4 +91,11 @@ ENV/
 .ropeproject
 
 # PyCharm project setting
-.idea
+.idea/
+
+.vscode/
+
+.project
+.pydevproject
+.pylintrc
+.travis.yml

@@ -28,8 +28,10 @@ from __future__ import print_function
 
 import tensorflow
 if tensorflow.__version__.startswith("1."):
+    del tensorflow
     import tensorflow as tf
 else:
+    del tensorflow
     import tensorflow.compat.v1 as tf
     tf.disable_v2_behavior()
 import numpy as np
@@ -42,6 +44,7 @@ import h5py
 import math
 from six import iteritems
 from tensorflow.python.platform import gfile
+
 
 def main(args):
     dataset = facenet.get_dataset(args.dataset_dir)
