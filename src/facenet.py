@@ -28,7 +28,17 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import random
+import re
+import math
+from typing import Union
 from subprocess import Popen, PIPE
+import numpy as np
+from scipy import misc
+from scipy.spatial.distance import cdist, pdist, squareform
+from scipy import interpolate
+from sklearn.model_selection import KFold
+from six import iteritems
 import tensorflow
 if tensorflow.__version__.startswith("1."):
     del tensorflow
@@ -37,14 +47,6 @@ else:
     del tensorflow
     import tensorflow.compat.v1 as tf
     tf.disable_v2_behavior()
-import numpy as np
-from scipy import misc
-from sklearn.model_selection import KFold
-from scipy import interpolate
-import random
-import re
-import math
-from six import iteritems
 from tensorflow.python.training import training
 from tensorflow.python.platform import gfile
 
@@ -464,19 +466,36 @@ def get_model_filenames(model_dir):
     return meta_file, ckpt_file
 
 
-def distance(embeddings1, embeddings2, distance_metric=0):
-    if distance_metric==0:
+def distance(embeddings1:np.ndarray, embeddings2:Optional[np.ndarray]=None, distance_metric:Union[str,int]=0, **kwargs) -> np.ndarray:
+    """
+    """
+    old_fashion = kwargs.get('old_fashion', False)
+    if distance_metric not in [0, 1, 'euclidean', 'cosine']:
+        raise ValueError('Undefined distance metric {}'.format(distance_metric))
+    metric = {0:'euclidean', 'euclidean':'euclidean', 1:'cosine', 'cosine':'cosine'}[distance_metric]
+    
+    if embeddings2 is None:
+        dist = squareform(pdist(embeddings1, metric=metric))
+        return dist
+
+    if not old_fashion:
+        dist = np.diag(cdist(embeddings1, embeddings2, metric=metric))
+        return dist
+
+    # old-fashioned distances
+    if metric == 'euclidean':
         # Euclidian distance
         diff = np.subtract(embeddings1, embeddings2)
-        dist = np.sum(np.square(diff),1)
-    elif distance_metric==1:
+        dist = np.sqrt(np.sum(np.square(diff),1))
+    elif metric == 'cosine':
         # Distance based on cosine similarity
+        # should one use `1-cos(theta)` or use `arccos(theta)` as distance?
+        # ref. https://en.wikipedia.org/wiki/Cosine_similarity
+        # and https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.pdist.html
         dot = np.sum(np.multiply(embeddings1, embeddings2), axis=1)
         norm = np.linalg.norm(embeddings1, axis=1) * np.linalg.norm(embeddings2, axis=1)
         similarity = dot / norm
         dist = np.arccos(similarity) / math.pi
-    else:
-        raise 'Undefined distance metric %d' % distance_metric 
         
     return dist
 

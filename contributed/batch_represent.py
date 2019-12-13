@@ -71,7 +71,7 @@ import argparse
 import importlib
 import time
 
-sys.path.insert(1, "../src")
+# sys.path.insert(1, "../src")
 from src import facenet
 import numpy as np
 from sklearn.datasets import load_files
@@ -85,8 +85,10 @@ else:
     tf.disable_v2_behavior()
 from six.moves import xrange
 
-def main(args):
 
+def main(args):
+	"""
+	"""
 	with tf.Graph().as_default():
 
 		with tf.Session() as sess:
@@ -98,8 +100,7 @@ def main(args):
 
 			# load the model
 			print("Loading trained model...\n")
-			meta_file, ckpt_file = facenet.get_model_filenames(os.path.expanduser(args.trained_model_dir))
-			facenet.load_model(args.trained_model_dir, meta_file, ckpt_file)
+			facenet.load_model(args.trained_model_dir)
 
 			# grab all image paths and labels
 			print("Finding image paths and targets...\n")
